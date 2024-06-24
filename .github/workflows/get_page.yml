@@ -35,7 +35,5 @@ jobs:
           tags: ${{ env.REGISTRY }}/${{ steps.normalize-repository-name.outputs.repository }}:latest
 
 
-      - name: Run container and print page content
-        uses: addnab/docker-run-action@v3  # Using a community-maintained action
-        with:
-          image: ${{ env.REGISTRY }}/${{ steps.normalize-repository-name.outputs.repository }}:latest  # Replace with the image you pushed
+      - name: Run scraper
+        run: docker run --rm ${{ env.REGISTRY }}/${{ steps.normalize-repository-name.outputs.repository }}:latest
