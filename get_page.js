@@ -1,7 +1,7 @@
 const https = require('https');
 const dns = require('dns');
 
-const url = 'https://www.google.com';
+const url = 'https://login.yahav.co.il/login/';
 const hostname = new URL(url).hostname;
 const maxOutputLength = 300;
 
