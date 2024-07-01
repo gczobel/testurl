@@ -1,34 +1,35 @@
 const https = require('https');
 const dns = require('dns');
 
-const url = 'https://login.yahav.co.il/login/';
+const url = 'https://www.google.com';
+const hostname = new URL(url).hostname;
+const maxOutputLength = 300;
 
-function getPageContent(address) {
-  return new Promise((resolve, reject) => {
-    https.get(url, {
-      rejectUnauthorized: false, // Ignore SSL certificate validation for simplicity (not recommended in production)
-    }, (response) => {
-      let data = '';
-      response.on('data', (chunk) => {
-        data += chunk;
-      });
-      response.on('end', () => {
-        resolve(data);
-      });
-      response.on('error', (error) => {
-        reject(error);
-      });
-    });
-  });
-}
-
-dns.lookup(url.hostname, (err, address) => {
+dns.lookup(hostname, (err, address, family) => {
   if (err) {
-    console.error('Error resolving hostname:', err);
-  } else {
-    console.log('Resolved IP address:', address);
-    getPageContent(address)
-      .then((data) => console.log('Page content:', data.substring(0, 1000) + '... (truncated)')) // Print only first 1000 characters for brevity
-      .catch((error) => console.error('Error fetching page content:', error));
+    console.error('DNS lookup failed:', err);
+    return;
   }
+
+  console.log(`IP address: ${address}`);
+
+  let outputLength = 0;
+
+  https.get(url, (response) => {
+    console.log('Response Status:', response.statusCode);
+    response.on('data', (chunk) => {
+      if (outputLength < maxOutputLength) {
+        const remainingLength = maxOutputLength - outputLength;
+        const chunkStr = chunk.toString();
+        const toPrint = chunkStr.slice(0, remainingLength);
+        console.log(toPrint);
+        outputLength += toPrint.length;
+      }
+      if (outputLength >= maxOutputLength) {
+        response.destroy(); // Stop receiving data
+      }
+    });
+  }).on('error', (error) => {
+    console.error('Error fetching page content:', error);
+  });
 });
