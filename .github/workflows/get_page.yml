@@ -1,6 +1,8 @@
 name: Get Page Content
 
 on:
+  workflow_dispatch:
+  
   push: # Trigger on push events to the main branch
 
 env:
